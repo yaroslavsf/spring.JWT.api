@@ -11,9 +11,10 @@ import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,8 +29,8 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
 
   private final JwtProperties jwtProperties;
 
-  public CustomAuthenticationFilter(RequestMatcher requestMatcher,
-      AuthenticationManager authenticationManager, JwtProperties jwtProperties) {
+  public CustomAuthenticationFilter(RequestMatcher requestMatcher, AuthenticationManager authenticationManager,
+                                 JwtProperties jwtProperties) {
     super(requestMatcher, authenticationManager);
     this.jwtProperties = jwtProperties;
   }
@@ -39,37 +40,40 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
     byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
 
     return Jwts.builder()
-        .claims(Map.of("sub", userDetailsImpl.user().getId().toString(), "authorities",
-            userDetailsImpl.getAuthorities()))
-        .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMillis()))
-        .issuer(jwtProperties.getIssuer())
-        .signWith(Keys.hmacShaKeyFor(keyBytes))
-        .compact();
+            .setClaims(Map.of("sub", userDetailsImpl.user()
+                    .getId(), "authorities", userDetailsImpl.getAuthorities()))
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMillis()))
+            .setIssuer(jwtProperties.getIssuer())
+            .signWith(Keys.hmacShaKeyFor(keyBytes))
+            .compact();
   }
 
   @Override
-  public Authentication attemptAuthentication(HttpServletRequest request,
-      HttpServletResponse response)
-      throws AuthenticationException, IOException {
-    Credentials credentials = new ObjectMapper().readValue(request.getInputStream(),
-        Credentials.class);
-    return getAuthenticationManager()
-        .authenticate(new UsernamePasswordAuthenticationToken(credentials.getEmail(),
-            credentials.getPassword()));
+  public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+          throws AuthenticationException {
+    try {
+      Credentials credentials = new ObjectMapper().readValue(request.getInputStream(), Credentials.class);
+      return getAuthenticationManager().authenticate(
+              new UsernamePasswordAuthenticationToken(credentials.getEmail(), credentials.getPassword()));
+    }
+    catch (IOException e) {
+      //Exception while authentication thrown
+      return null;
+    }
   }
 
   @Override
-  protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-      FilterChain chain,
-      Authentication authResult) {
-    response.addHeader(HttpHeaders.AUTHORIZATION,
-        AuthorizationSchemas.BEARER + " " + generateToken(authResult));
+  protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                          Authentication authResult) throws IOException {
+    response.addHeader(HttpHeaders.AUTHORIZATION, AuthorizationSchemas.BEARER + " " + generateToken(authResult));
+    UserDetailsImpl userDetailsImpl = (UserDetailsImpl) authResult.getPrincipal();
+    response.getWriter().write(new ObjectMapper().writeValueAsString(userDetailsImpl.user()));
   }
 
   @Override
-  protected void unsuccessfulAuthentication(HttpServletRequest request,
-      HttpServletResponse response, AuthenticationException failed) {
+  protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                            AuthenticationException failed) {
     SecurityContextHolder.clearContext();
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
   }

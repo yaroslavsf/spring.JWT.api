@@ -2,16 +2,12 @@ package com.example.jwt.domain.user;
 
 import com.example.jwt.core.generic.ExtendedAuditEntity;
 import com.example.jwt.domain.role.Role;
+import jakarta.persistence.*;
+
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "users")

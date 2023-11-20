@@ -1,9 +1,10 @@
 package com.example.jwt.domain.authority.dto;
 
 import com.example.jwt.core.generic.ExtendedDTO;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 public class AuthorityDTO extends ExtendedDTO {
 

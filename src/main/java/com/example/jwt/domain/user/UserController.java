@@ -5,7 +5,8 @@ import com.example.jwt.domain.user.dto.UserMapper;
 import com.example.jwt.domain.user.dto.UserRegisterDTO;
 import java.util.List;
 import java.util.UUID;
-import javax.validation.Valid;
+
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
