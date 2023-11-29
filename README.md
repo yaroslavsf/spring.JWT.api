@@ -5,7 +5,7 @@
 - [Migration](#migration)
 
 ## 🧐About
-- JWT flow
+- JWT flow<br>
   ![image](https://github.com/yaroslavsf/spring.JWT.api/assets/90136987/090087cc-a436-4c7b-9ca8-ca1aad39926b)
 - Debugger
   https://jwt.io/
